@@ -14,7 +14,7 @@ namespace Wiki.LoginLogic
         public static bool LoginUser(string login, string password)
         {
             var exApp = new Excel.Application();
-            var xlWb = exApp.Workbooks.Open("..\\..\\Users.xlsx");
+            var xlWb = exApp.Workbooks.Open(AppDomain.CurrentDomain.BaseDirectory + "\\Users.xlsx");
             var exWrkSht = xlWb.Sheets[1];
             var firstEmpty = exWrkSht.Cells[exWrkSht.Rows.Count, "A"].End[Excel.XlDirection.xlUp].Row + 1;
 
@@ -36,7 +36,7 @@ namespace Wiki.LoginLogic
             if (password != secondPassword) return false;
 
             var exApp = new Excel.Application();
-            var xlWb = exApp.Workbooks.Open("..\\..\\Users.xlsx");
+            var xlWb = exApp.Workbooks.Open(AppDomain.CurrentDomain.BaseDirectory + "\\Users.xlsx");
             var exWrkSht = xlWb.Sheets[1];
             var firstEmpty = exWrkSht.Cells[exWrkSht.Rows.Count, "A"].End[Excel.XlDirection.xlUp].Row + 1;
 

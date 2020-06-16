@@ -22,10 +22,6 @@ namespace Wiki
     public partial class LoginWindow : Window
     {
 
-        private string login;
-        private string password;
-        private string password_repeat;
-
         public LoginWindow()
         {
             InitializeComponent();
@@ -58,8 +54,8 @@ namespace Wiki
             Button signInButton = new Button();
             signInButton.Margin = new Thickness(125, 300, 125, 130);
             signInButton.Content = "Sign In";
+            signInButton.Click += (e, v) => signInButton.Tag = loginTextBox.Text + " " + passwordTextBox.Password;
             signInButton.Click += signInButton_click;
-            signInButton.Tag = loginTextBox.Text + " " + passwordTextBox.Password;
             Button signUpButton = new Button();
             signUpButton.Margin = new Thickness(125, 350, 125, 80);
             signUpButton.Content = "Sign Up";
@@ -136,8 +132,10 @@ namespace Wiki
             Button signUpButton = new Button();
             signUpButton.Margin = new Thickness(125, 350, 125, 80);
             signUpButton.Content = "Sign Up";
+            signUpButton.Click += (e, v) =>
+                signUpButton.Tag = loginTextBox.Text + " " + passwordTextBox1.Password + " " +
+                                   passwordTextBox2.Password;
             signUpButton.Click += signUpButton2_click;
-            signUpButton.Tag = loginTextBox.Text + " " + passwordTextBox1.Password + " " +passwordTextBox2.Password;
 
             layoutGrid.Children.Add(titleTextBlock);
             layoutGrid.Children.Add(loginTextBlock);
