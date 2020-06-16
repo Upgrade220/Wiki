@@ -30,3 +30,6 @@ C:\Users\slava\Desktop\wiki\Wiki\obj\Debug\Wiki.pdb
 C:\Users\User\source\repos\Wiki\obj\Debug\MainWindow.g.cs
 C:\Users\User\source\repos\Wiki\obj\Debug\MainWindow.baml
 C:\Users\User\source\repos\Wiki\bin\Debug\Users.xlsx
+C:\Users\slava\Desktop\wiki\Wiki\bin\Debug\Users.xlsx
+C:\Users\slava\Desktop\wiki\Wiki\obj\Debug\MainWindow.g.cs
+C:\Users\slava\Desktop\wiki\Wiki\obj\Debug\MainWindow.baml

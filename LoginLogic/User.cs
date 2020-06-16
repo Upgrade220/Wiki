@@ -14,7 +14,7 @@ namespace Wiki.LoginLogic
         public static bool LoginUser(string login, string password)
         {
             var exApp = new Excel.Application();
-            var xlWb = exApp.Workbooks.Open(AppDomain.CurrentDomain.BaseDirectory + "\\Users.xlsx");
+            var xlWb = exApp.Workbooks.Open(AppDomain.CurrentDomain.BaseDirectory + "..\\..\\Users.xlsx");
             var exWrkSht = xlWb.Sheets[1];
             var firstEmpty = exWrkSht.Cells[exWrkSht.Rows.Count, "A"].End[Excel.XlDirection.xlUp].Row + 1;
 
@@ -25,8 +25,8 @@ namespace Wiki.LoginLogic
             foreach (byte b in byteHash)
                 hash += string.Format("{0:x2}", b);
 
-            for (var i = 0; i < firstEmpty; i++)
-                if (login == exWrkSht.Cells[i, 0] && hash == exWrkSht[i, 1])
+            for (var i = 1; i < firstEmpty; i++)
+                if (login == exWrkSht.Cells[i, 1].ToString() && hash == exWrkSht[i, 2].ToString())
                     return true;
             return false;
         }
@@ -36,12 +36,12 @@ namespace Wiki.LoginLogic
             if (password != secondPassword) return false;
 
             var exApp = new Excel.Application();
-            var xlWb = exApp.Workbooks.Open(AppDomain.CurrentDomain.BaseDirectory + "\\Users.xlsx");
+            var xlWb = exApp.Workbooks.Open(AppDomain.CurrentDomain.BaseDirectory + "..\\..\\Users.xlsx");
             var exWrkSht = xlWb.Sheets[1];
             var firstEmpty = exWrkSht.Cells[exWrkSht.Rows.Count, "A"].End[Excel.XlDirection.xlUp].Row + 1;
 
-            for (var i = 0; i < firstEmpty; i++)
-                if (login == exWrkSht.Cells[i, 0]) return false;
+            for (var i = 1; i < firstEmpty; i++)
+                if (login == exWrkSht.Cells[i, 1].ToString()) return false;
 
             var bytes = Encoding.Unicode.GetBytes(password);
             var CSP = new MD5CryptoServiceProvider();
@@ -50,9 +50,10 @@ namespace Wiki.LoginLogic
             foreach (byte b in byteHash)
                 hash += string.Format("{0:x2}", b);
 
-            exWrkSht.Cells[firstEmpty, 0] = login;
-            exWrkSht.Cells[firstEmpty, 1] = hash;
-            xlWb.Close(true);
+            exWrkSht.Cells[firstEmpty, 1] = login;
+            exWrkSht.Cells[firstEmpty, 2] = hash;
+            xlWb.Save();
+            xlWb.Close();
             exApp.Quit();
 
             return true;
