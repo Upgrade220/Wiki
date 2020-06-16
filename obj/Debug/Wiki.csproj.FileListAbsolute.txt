@@ -1,0 +1,14 @@
+C:\Users\User\source\repos\Wiki\bin\Debug\Wiki.exe.config
+C:\Users\User\source\repos\Wiki\bin\Debug\Wiki.exe
+C:\Users\User\source\repos\Wiki\bin\Debug\Wiki.pdb
+C:\Users\User\source\repos\Wiki\obj\Debug\Wiki.csprojAssemblyReference.cache
+C:\Users\User\source\repos\Wiki\obj\Debug\LoginWindow.g.cs
+C:\Users\User\source\repos\Wiki\obj\Debug\App.g.cs
+C:\Users\User\source\repos\Wiki\obj\Debug\Wiki_MarkupCompile.cache
+C:\Users\User\source\repos\Wiki\obj\Debug\Wiki_MarkupCompile.lref
+C:\Users\User\source\repos\Wiki\obj\Debug\LoginWindow.baml
+C:\Users\User\source\repos\Wiki\obj\Debug\Wiki.g.resources
+C:\Users\User\source\repos\Wiki\obj\Debug\Wiki.Properties.Resources.resources
+C:\Users\User\source\repos\Wiki\obj\Debug\Wiki.csproj.GenerateResource.cache
+C:\Users\User\source\repos\Wiki\obj\Debug\Wiki.exe
+C:\Users\User\source\repos\Wiki\obj\Debug\Wiki.pdb
