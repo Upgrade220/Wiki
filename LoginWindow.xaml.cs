@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Wiki.LoginLogic;
 
 namespace Wiki
 {
@@ -20,6 +21,11 @@ namespace Wiki
     /// </summary>
     public partial class LoginWindow : Window
     {
+
+        private string login;
+        private string password;
+        private string password_repeat;
+
         public LoginWindow()
         {
             InitializeComponent();
@@ -53,6 +59,7 @@ namespace Wiki
             signInButton.Margin = new Thickness(125, 300, 125, 130);
             signInButton.Content = "Sign In";
             signInButton.Click += signInButton_click;
+            signInButton.Tag = loginTextBox.Text + " " + passwordTextBox.Password;
             Button signUpButton = new Button();
             signUpButton.Margin = new Thickness(125, 350, 125, 80);
             signUpButton.Content = "Sign Up";
@@ -66,8 +73,17 @@ namespace Wiki
             layoutGrid.Children.Add(signUpButton);
         }
 
+
         private void signInButton_click(object sender, RoutedEventArgs e)
         {
+            var login = ((Control) sender).Tag.ToString().Split(' ').First();
+            var password = ((Control) sender).Tag.ToString().Split(' ').Last();
+            if (User.LoginUser(login, password))
+                MessageBox.Show("Ты уебан", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+            MainWindow mainWindow = new MainWindow();
+            this.Hide();
+            mainWindow.ShowDialog();
+            this.Close();
         }
 
         private void signUpButton1_click(object sender, RoutedEventArgs e)
@@ -121,6 +137,7 @@ namespace Wiki
             signUpButton.Margin = new Thickness(125, 350, 125, 80);
             signUpButton.Content = "Sign Up";
             signUpButton.Click += signUpButton2_click;
+            signUpButton.Tag = loginTextBox.Text + " " + passwordTextBox1.Password + " " +passwordTextBox2.Password;
 
             layoutGrid.Children.Add(titleTextBlock);
             layoutGrid.Children.Add(loginTextBlock);
@@ -134,18 +151,37 @@ namespace Wiki
 
         private void signUpButton2_click(object sender, RoutedEventArgs e)
         {
-            layoutGrid.Children.Clear();
-            DrawSignInWindow();
+            var login = ((Control)sender).Tag.ToString().Split(' ').First();
+            var password = ((Control)sender).Tag.ToString().Split(' ')[1];
+            var password_repeat = ((Control) sender).Tag.ToString().Split(' ').Last();
 
-            TextBlock sRTextBlock = new TextBlock();
-            sRTextBlock.Margin = new Thickness(10);
-            sRTextBlock.FontSize = 16;
-            sRTextBlock.Foreground = Brushes.Green;
-            sRTextBlock.HorizontalAlignment = HorizontalAlignment.Center;
-            sRTextBlock.VerticalAlignment = VerticalAlignment.Bottom;
-            sRTextBlock.Text = "Registration successful";
+            if (User.RegisterUser(login, password, password_repeat))
+            {
+                layoutGrid.Children.Clear();
+                DrawSignInWindow();
 
-            layoutGrid.Children.Add(sRTextBlock);
+                TextBlock sRTextBlock = new TextBlock();
+                sRTextBlock.Margin = new Thickness(10);
+                sRTextBlock.FontSize = 16;
+                sRTextBlock.Foreground = Brushes.Green;
+                sRTextBlock.HorizontalAlignment = HorizontalAlignment.Center;
+                sRTextBlock.VerticalAlignment = VerticalAlignment.Bottom;
+                sRTextBlock.Text = "Registration successful";
+
+                layoutGrid.Children.Add(sRTextBlock);
+            }
+            else
+            {
+                TextBlock sRTextBlock = new TextBlock();
+                sRTextBlock.Margin = new Thickness(10);
+                sRTextBlock.FontSize = 16;
+                sRTextBlock.Foreground = Brushes.Red;
+                sRTextBlock.HorizontalAlignment = HorizontalAlignment.Center;
+                sRTextBlock.VerticalAlignment = VerticalAlignment.Bottom;
+                sRTextBlock.Text = "Passwords didn't match or Login already exists";
+
+                layoutGrid.Children.Add(sRTextBlock);
+            }
         }
     }
 }

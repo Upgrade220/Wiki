@@ -27,3 +27,5 @@ C:\Users\slava\Desktop\wiki\Wiki\obj\Debug\Wiki.csproj.GenerateResource.cache
 C:\Users\slava\Desktop\wiki\Wiki\obj\Debug\Wiki.csproj.CoreCompileInputs.cache
 C:\Users\slava\Desktop\wiki\Wiki\obj\Debug\Wiki.exe
 C:\Users\slava\Desktop\wiki\Wiki\obj\Debug\Wiki.pdb
+C:\Users\User\source\repos\Wiki\obj\Debug\MainWindow.g.cs
+C:\Users\User\source\repos\Wiki\obj\Debug\MainWindow.baml
