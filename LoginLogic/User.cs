@@ -11,18 +11,28 @@ namespace Wiki.LoginLogic
 {
     class User
     {
-        private static string Login;
-        private static string Password;
-
         public static bool LoginUser(string login, string password)
         {
-            return false;
+            var exApp = new Excel.Application();
+            var xlWb = exApp.Workbooks.Open("\\..\\..\\Users.xlsx");
+            var exWrkSht = xlWb.Sheets[1];
+            var firstEmpty = exWrkSht.Cells[exWrkSht.Rows.Count, "A"].End[Excel.XlDirection.xlUp].Row + 1;
 
+            var bytes = Encoding.Unicode.GetBytes(password);
+            var CSP = new MD5CryptoServiceProvider();
+            var byteHash = CSP.ComputeHash(bytes);
+            var hash = string.Empty;
+            foreach (byte b in byteHash)
+                hash += string.Format("{0:x2}", b);
+
+            for (var i = 0; i < firstEmpty; i++)
+                if (login == exWrkSht.Cells[i, 0] && hash == exWrkSht[i, 1])
+                    return true;
+            return false;
         }
 
         public static bool RegisterUser(string login, string password, string secondPassword)
         {
-            if()
             if (password != secondPassword) return false;
 
             var exApp = new Excel.Application();
@@ -39,7 +49,6 @@ namespace Wiki.LoginLogic
             var hash = string.Empty;
             foreach (byte b in byteHash)
                 hash += string.Format("{0:x2}", b);
-            Password = hash;
 
             exWrkSht.Cells[firstEmpty, 0] = login;
             exWrkSht.Cells[firstEmpty, 1] = hash;
