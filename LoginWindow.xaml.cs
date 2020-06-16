@@ -75,11 +75,24 @@ namespace Wiki
             var login = ((Control) sender).Tag.ToString().Split(' ').First();
             var password = ((Control) sender).Tag.ToString().Split(' ').Last();
             if (User.LoginUser(login, password))
-                MessageBox.Show("Ты уебан", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
-            MainWindow mainWindow = new MainWindow();
-            this.Hide();
-            mainWindow.ShowDialog();
-            this.Close();
+            {
+                MainWindow mainWindow = new MainWindow();
+                this.Hide();
+                mainWindow.ShowDialog();
+                this.Close();
+            }
+            else
+            {
+                TextBlock sRTextBlock = new TextBlock();
+                sRTextBlock.Margin = new Thickness(10);
+                sRTextBlock.FontSize = 16;
+                sRTextBlock.Foreground = Brushes.Red;
+                sRTextBlock.HorizontalAlignment = HorizontalAlignment.Center;
+                sRTextBlock.VerticalAlignment = VerticalAlignment.Bottom;
+                sRTextBlock.Text = "Incorrect password or login";
+
+                layoutGrid.Children.Add(sRTextBlock);
+            }
         }
 
         private void signUpButton1_click(object sender, RoutedEventArgs e)
@@ -176,7 +189,7 @@ namespace Wiki
                 sRTextBlock.Foreground = Brushes.Red;
                 sRTextBlock.HorizontalAlignment = HorizontalAlignment.Center;
                 sRTextBlock.VerticalAlignment = VerticalAlignment.Bottom;
-                sRTextBlock.Text = "Passwords didn't match or Login already exists";
+                sRTextBlock.Text = "Passwords didn't match or" + Environment.NewLine + "      Login already exists";
 
                 layoutGrid.Children.Add(sRTextBlock);
             }
