@@ -13,7 +13,7 @@ namespace Wiki.ArticleLogic
         public string Content;
 
 
-        public static Article CreateArticle(string fileName)
+        public static Article ReadArticle(string fileName)
         {
             var article = new Article();
             var sr = new StreamReader(AppDomain.CurrentDomain.BaseDirectory + fileName);
@@ -21,6 +21,13 @@ namespace Wiki.ArticleLogic
             article.Header = str.First();
             article.Content = str.Last();
             return article;
+        }
+
+        public static void CreateChange(string changes, int i)
+        {
+            var change = new StreamWriter("Changes" + i + ".txt");
+            change.Write(changes);
+            change.Close();
         }
 
         public override string ToString()

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,12 +22,15 @@ namespace Wiki
     /// </summary>
     public partial class MainWindow : Window
     {
-        public MainWindow()
+        public MainWindow(bool IsAdmin)
         {
             var articles = new List<Article>();
+            var changes = new List<Article>();
 
-            for (int i = 1; i < 4; i++)
-                articles.Add(Article.CreateArticle("Article" + i + ".txt"));
+            for (int i = 1; i < Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "Article?.txt").Length; i++)
+                articles.Add(Article.ReadArticle("Article" + i + ".txt"));
+            for (int i = 1; i < Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "Changes?.txt").Length; i++)
+                changes.Add(Article.ReadArticle("Changes" + i + ".txt"));
 
             InitializeComponent();
 
@@ -41,9 +45,12 @@ namespace Wiki
             layoutGrid.ColumnDefinitions.Add(leftCol);
             layoutGrid.ColumnDefinitions.Add(rightCol);
 
+            //Левая часть
+
             var leftScroll = new ScrollViewer();
             leftScroll.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
             leftScroll.HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled;
+            leftScroll.Height = IsAdmin ? 960 : 1020;
             Grid.SetColumn(leftScroll, 0);
             Grid.SetRow(leftScroll, 0);
 
@@ -53,22 +60,22 @@ namespace Wiki
             Grid.SetColumn(leftStackPanel, 0);
             Grid.SetRow(leftStackPanel, 0);
 
-            var searchTextBox = new TextBox();
-            searchTextBox.Margin = new Thickness(0);
-            searchTextBox.Width = 300;
-            searchTextBox.FontSize = 18;
-            searchTextBox.HorizontalAlignment = HorizontalAlignment.Stretch;
-            searchTextBox.Text = "Search";
-            searchTextBox.Foreground = Brushes.Gray;
-            searchTextBox.GotKeyboardFocus += new KeyboardFocusChangedEventHandler(tb_GotKeyboardFocus);
-            searchTextBox.LostKeyboardFocus += new KeyboardFocusChangedEventHandler(tb_LostKeyboardFocus);
+            //var searchTextBox = new TextBox();
+            //searchTextBox.Margin = new Thickness(0);
+            //searchTextBox.Width = 300;
+            //searchTextBox.FontSize = 18;
+            //searchTextBox.HorizontalAlignment = HorizontalAlignment.Stretch;
+            //searchTextBox.Text = "Search";
+            //searchTextBox.Foreground = Brushes.Gray;
+            //searchTextBox.GotKeyboardFocus += new KeyboardFocusChangedEventHandler(tb_GotKeyboardFocus);
+            //searchTextBox.LostKeyboardFocus += new KeyboardFocusChangedEventHandler(tb_LostKeyboardFocus);
 
             var listElement = new DataTemplate();
             listElement.DataType = typeof(Article);
-            FrameworkElementFactory spFactory = new FrameworkElementFactory(typeof(StackPanel));
+            var spFactory = new FrameworkElementFactory(typeof(StackPanel));
             spFactory.Name = "myComboFactory";
             spFactory.SetValue(StackPanel.OrientationProperty, Orientation.Horizontal);
-            FrameworkElementFactory Title = new FrameworkElementFactory(typeof(TextBlock));
+            var Title = new FrameworkElementFactory(typeof(TextBlock));
             Title.SetBinding(TextBlock.TextProperty, new Binding(""));
             spFactory.AppendChild(Title);
             listElement.VisualTree = spFactory;
@@ -76,13 +83,47 @@ namespace Wiki
             var listBox = new ListBox();
             listBox.HorizontalAlignment = HorizontalAlignment.Stretch;
             listBox.Margin = new Thickness(0);
+            listBox.Width = 300;
             listBox.ItemsSource = articles;
             listBox.ItemTemplate = listElement;
             listBox.SelectionMode = SelectionMode.Single;
 
-            leftStackPanel.Children.Add(searchTextBox);
+            var articlesButton = new Button();
+            articlesButton.VerticalAlignment = VerticalAlignment.Bottom;
+            articlesButton.HorizontalAlignment = HorizontalAlignment.Center;
+            articlesButton.Margin = new Thickness(0);
+            articlesButton.Height = 30;
+            articlesButton.Width = 300;
+            articlesButton.Content = "Статьи";
+            articlesButton.Click += (v, e) =>
+            {
+                listBox.ItemsSource = articles;
+                InvalidateVisual();
+            };
+
+            var changesButton = new Button();
+            changesButton.VerticalAlignment = VerticalAlignment.Bottom;
+            changesButton.HorizontalAlignment = HorizontalAlignment.Center;
+            changesButton.Margin = new Thickness(0);
+            changesButton.Height = 30;
+            changesButton.Width = 300;
+            changesButton.Content = "Правки";
+            changesButton.Click += (v, e) =>
+            {
+                listBox.ItemsSource = changes;
+                InvalidateVisual();
+            };
+
+            //leftStackPanel.Children.Add(searchTextBox);
             leftScroll.Content = listBox;
             leftStackPanel.Children.Add(leftScroll);
+            if (IsAdmin)
+            {
+                leftStackPanel.Children.Add(articlesButton);
+                leftStackPanel.Children.Add(changesButton);
+            }
+
+            // Правая часть
 
             var rightStackPanel = new StackPanel();
             rightStackPanel.HorizontalAlignment = HorizontalAlignment.Left;
@@ -99,6 +140,7 @@ namespace Wiki
             var rightScroll = new ScrollViewer();
             rightScroll.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
             rightScroll.HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled;
+            rightScroll.Height = 945;
             Grid.SetColumn(rightScroll, 1);
             Grid.SetRow(rightScroll, 0);
 
@@ -118,13 +160,46 @@ namespace Wiki
                 }
             };
 
-            rightStackPanel.Children.Add(titleTextBlock);
-            rightStackPanel.Children.Add(contentTextBlock);
+            var changingButton = new Button();
+            changingButton.VerticalAlignment = VerticalAlignment.Bottom;
+            changingButton.HorizontalAlignment = HorizontalAlignment.Center;
+            changingButton.Margin = new Thickness(0);
+            changingButton.Height = 40;
+            changingButton.Width = 1620;
+            changingButton.Content = "Предложить правку";
 
-            rightScroll.Content = rightStackPanel;
+            var acceptChangesButton = new Button();
+            acceptChangesButton.VerticalAlignment = VerticalAlignment.Bottom;
+            acceptChangesButton.HorizontalAlignment = HorizontalAlignment.Center;
+            acceptChangesButton.Margin = new Thickness(0);
+            acceptChangesButton.Height = 40;
+            acceptChangesButton.Width = 1620;
+            acceptChangesButton.Content = "Принять правку";
+
+            rightStackPanel.Children.Add(titleTextBlock);
+            rightScroll.Content = contentTextBlock;
+            rightStackPanel.Children.Add(rightScroll);
+            rightStackPanel.Children.Add(listBox.ItemsSource == articles ? changingButton : acceptChangesButton);
+
+            articlesButton.Click += (v, e) =>
+            {
+                rightStackPanel.Children.Clear();
+                rightStackPanel.Children.Add(titleTextBlock);
+                rightStackPanel.Children.Add(rightScroll);
+                rightStackPanel.Children.Add(changingButton);
+                InvalidateVisual();
+            };
+            changesButton.Click += (v, e) =>
+            {
+                rightStackPanel.Children.Clear();
+                rightStackPanel.Children.Add(titleTextBlock);
+                rightStackPanel.Children.Add(rightScroll);
+                rightStackPanel.Children.Add(acceptChangesButton);
+                InvalidateVisual();
+            };
 
             layoutGrid.Children.Add(leftStackPanel);
-            layoutGrid.Children.Add(rightScroll);
+            layoutGrid.Children.Add(rightStackPanel);
         }
 
         private void tb_GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)

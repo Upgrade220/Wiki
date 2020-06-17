@@ -50,9 +50,9 @@ namespace Wiki.LoginLogic
             foreach (byte b in byteHash)
                 hash += string.Format("{0:x2}", b);
 
-            exWrkSht.Cells[firstEmpty - 1, 1] = login;
-            exWrkSht.Cells[firstEmpty - 1, 2] = hash;
-            exWrkSht.Cells[firstEmpty - 1, 3] = "0";
+            exWrkSht.Cells[firstEmpty, 1] = login;
+            exWrkSht.Cells[firstEmpty, 2] = hash;
+            exWrkSht.Cells[firstEmpty, 3] = "0";
             xlWb.Save();
             xlWb.Close();
             exApp.Quit();
@@ -67,7 +67,7 @@ namespace Wiki.LoginLogic
             var exWrkSht = xlWb.Sheets[1];
             var firstEmpty = exWrkSht.Cells[exWrkSht.Rows.Count, "A"].End[Excel.XlDirection.xlUp].Row + 1;
             for (var i = 1; i < firstEmpty; i++)
-                if ("1" == exWrkSht.Cells[i, 3].Value.ToString()) return true;
+                if ("1" == exWrkSht.Cells[i, 3].Value.ToString() && login == exWrkSht.Cells[i, 1].Value.ToString()) return true;
             return false;
         }
     }
