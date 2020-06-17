@@ -41,7 +41,7 @@ namespace Wiki.LoginLogic
             var firstEmpty = exWrkSht.Cells[exWrkSht.Rows.Count, "A"].End[Excel.XlDirection.xlUp].Row + 1;
 
             for (var i = 1; i < firstEmpty; i++)
-                if (login == exWrkSht.Cells[i, 1].ToString()) return false;
+                if (login == exWrkSht.Cells[i, 1].Value.ToString()) return false;
 
             var bytes = Encoding.Unicode.GetBytes(password);
             var CSP = new MD5CryptoServiceProvider();
