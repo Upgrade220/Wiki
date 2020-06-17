@@ -8,7 +8,6 @@
         WindowStyle="SingleBorderWindow"
         WindowState="Maximized"
         Title="MainWindow" Height="1040" Width="1920">
-    <Grid>
-        
+    <Grid x:Name="layoutGrid">
     </Grid>
 </Window>
