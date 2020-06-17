@@ -22,5 +22,10 @@ namespace Wiki.ArticleLogic
             article.Content = str.Last();
             return article;
         }
+
+        public override string ToString()
+        {
+            return Header;
+        }
     }
 }
