@@ -52,13 +52,23 @@ namespace Wiki.LoginLogic
 
             exWrkSht.Cells[firstEmpty - 1, 1] = login;
             exWrkSht.Cells[firstEmpty - 1, 2] = hash;
+            exWrkSht.Cells[firstEmpty - 1, 3] = "0";
             xlWb.Save();
             xlWb.Close();
             exApp.Quit();
 
             return true;
         }
+
+        public static bool IsAdmin(string login)
+        {
+            var exApp = new Excel.Application();
+            var xlWb = exApp.Workbooks.Open(AppDomain.CurrentDomain.BaseDirectory + "..\\..\\Users.xlsx");
+            var exWrkSht = xlWb.Sheets[1];
+            var firstEmpty = exWrkSht.Cells[exWrkSht.Rows.Count, "A"].End[Excel.XlDirection.xlUp].Row + 1;
+            for (var i = 1; i < firstEmpty; i++)
+                if ("1" == exWrkSht.Cells[i, 3].Value.ToString()) return true;
+            return false;
+        }
     }
-
-
 }
