@@ -76,7 +76,11 @@ namespace Wiki
             var password = ((Control) sender).Tag.ToString().Split(' ').Last();
             if (User.LoginUser(login, password))
             {
-                MainWindow mainWindow = new MainWindow();
+                MainWindow mainWindow;
+                if (User.IsAdmin(login))
+                    mainWindow = new MainWindow(true);
+                else
+                    mainWindow = new MainWindow(false);
                 this.Hide();
                 mainWindow.ShowDialog();
                 this.Close();
