@@ -21,52 +21,81 @@ namespace Wiki
     /// </summary>
     public partial class LoginWindow : Window
     {
+        private TextBlock SRTextBlock = new TextBlock();
 
         public LoginWindow()
         {
             InitializeComponent();
+            this.Title = "Logging";
             DrawSignInWindow();
         }
 
         private void DrawSignInWindow()
         {
-            TextBlock loginTextBlock = new TextBlock();
-            loginTextBlock.Margin = new Thickness(100, 100, 100, 0);
-            loginTextBlock.FontSize = 16;
-            loginTextBlock.HorizontalAlignment = HorizontalAlignment.Center;
-            loginTextBlock.Text = "Login";
+            var bitmap = new BitmapImage();
+            bitmap.BeginInit();
+            bitmap.UriSource = new Uri(@"C:\Users\User\source\repos\Wiki\Icon.png");
+            bitmap.EndInit();
 
-            TextBox loginTextBox = new TextBox();
-            loginTextBox.Margin = new Thickness(90, 140, 90, 300);
-            loginTextBox.MaxLength = 20;
+            var image = new Image
+            {
+                Source = bitmap,
+                Width = 70,
+                Height = 70,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Top,
+                Margin = new Thickness(0, 20, 0, 0)
+            };
 
-            TextBlock passwordTextBlock = new TextBlock();
-            passwordTextBlock.Margin = new Thickness(100, 180, 100, 0);
-            passwordTextBlock.FontSize = 16;
-            passwordTextBlock.HorizontalAlignment = HorizontalAlignment.Center;
-            passwordTextBlock.Text = "Password";
+            var loginTextBlock = new TextBlock
+            {
+                Margin = new Thickness(100, 100, 100, 0), FontSize = 16,
+                HorizontalAlignment = HorizontalAlignment.Center, Text = "Login"
+            };
 
-            PasswordBox passwordTextBox = new PasswordBox();
-            passwordTextBox.Margin = new Thickness(90, 220, 90, 220);
-            passwordTextBox.MaxLength = 20;
-            passwordTextBox.PasswordChar = '*';
+            var loginTextBox = new TextBox {Margin = new Thickness(90, 140, 90, 300), MaxLength = 20};
 
-            Button signInButton = new Button();
-            signInButton.Margin = new Thickness(125, 300, 125, 130);
-            signInButton.Content = "Sign In";
+            var passwordTextBlock = new TextBlock
+            {
+                Margin = new Thickness(100, 180, 100, 0), FontSize = 16,
+                HorizontalAlignment = HorizontalAlignment.Center, Text = "Password"
+            };
+
+            var passwordTextBox = new PasswordBox
+            {
+                Margin = new Thickness(90, 220, 90, 220), MaxLength = 20, PasswordChar = '*'
+            };
+
+            var signInButton = new Button {Margin = new Thickness(125, 300, 125, 130), Content = "Sign In"};
             signInButton.Click += (e, v) => signInButton.Tag = loginTextBox.Text + " " + passwordTextBox.Password;
             signInButton.Click += signInButton_click;
-            Button signUpButton = new Button();
-            signUpButton.Margin = new Thickness(125, 350, 125, 80);
-            signUpButton.Content = "Sign Up";
+            signInButton.IsEnabled = false;
+
+            var signUpButton = new Button {Margin = new Thickness(125, 350, 125, 80), Content = "Sign Up"};
             signUpButton.Click += signUpButton1_click;
 
+            SRTextBlock.Margin = new Thickness(10);
+            SRTextBlock.FontSize = 16;
+            SRTextBlock.HorizontalAlignment = HorizontalAlignment.Center;
+            SRTextBlock.VerticalAlignment = VerticalAlignment.Bottom;
+
+            loginTextBox.TextChanged += (v, e) =>
+            {
+                signInButton.IsEnabled = passwordTextBox.Password != "" && loginTextBox.Text != "";
+            };
+            passwordTextBox.PasswordChanged += (v, e) =>
+            {
+                signInButton.IsEnabled = passwordTextBox.Password != "" && loginTextBox.Text != "";
+            };
+
+            layoutGrid.Children.Add(image);
             layoutGrid.Children.Add(loginTextBlock);
             layoutGrid.Children.Add(loginTextBox);
             layoutGrid.Children.Add(passwordTextBlock);
             layoutGrid.Children.Add(passwordTextBox);
             layoutGrid.Children.Add(signInButton);
             layoutGrid.Children.Add(signUpButton);
+            layoutGrid.Children.Add(SRTextBlock);
         }
 
 
@@ -87,15 +116,8 @@ namespace Wiki
             }
             else
             {
-                TextBlock sRTextBlock = new TextBlock();
-                sRTextBlock.Margin = new Thickness(10);
-                sRTextBlock.FontSize = 16;
-                sRTextBlock.Foreground = Brushes.Red;
-                sRTextBlock.HorizontalAlignment = HorizontalAlignment.Center;
-                sRTextBlock.VerticalAlignment = VerticalAlignment.Bottom;
-                sRTextBlock.Text = "Incorrect password or login";
-
-                layoutGrid.Children.Add(sRTextBlock);
+                SRTextBlock.Foreground = Brushes.Red;
+                SRTextBlock.Text = "Incorrect password or login";
             }
         }
 
@@ -107,54 +129,77 @@ namespace Wiki
 
         private void DrawSignUpWindow()
         {
-            TextBlock titleTextBlock = new TextBlock();
-            titleTextBlock.Margin = new Thickness(10);
-            titleTextBlock.FontSize = 24;
-            titleTextBlock.FontWeight = FontWeights.Bold;
-            titleTextBlock.HorizontalAlignment = HorizontalAlignment.Center;
-            titleTextBlock.Text = "Registration";
+            this.Title = "Registration";
 
-            TextBlock loginTextBlock = new TextBlock();
-            loginTextBlock.Margin = new Thickness(100, 100, 100, 0);
-            loginTextBlock.FontSize = 16;
-            loginTextBlock.HorizontalAlignment = HorizontalAlignment.Center;
-            loginTextBlock.Text = "Login";
+            var bitmap = new BitmapImage();
+            bitmap.BeginInit();
+            bitmap.UriSource = new Uri(@"C:\Users\User\source\repos\Wiki\Icon.png");
+            bitmap.EndInit();
 
-            TextBox loginTextBox = new TextBox();
-            loginTextBox.Margin = new Thickness(90, 140, 90, 300);
-            loginTextBox.MaxLength = 20;
+            var image = new Image
+            {
+                Source = bitmap,
+                Width = 70,
+                Height = 70,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Top,
+                Margin = new Thickness(0, 20, 0, 0)
+            };
 
-            TextBlock passwordTextBlock1 = new TextBlock();
-            passwordTextBlock1.Margin = new Thickness(100, 180, 100, 0);
-            passwordTextBlock1.FontSize = 16;
-            passwordTextBlock1.HorizontalAlignment = HorizontalAlignment.Center;
-            passwordTextBlock1.Text = "Password";
+            var loginTextBlock = new TextBlock
+            {
+                Margin = new Thickness(100, 100, 100, 0), FontSize = 16,
+                HorizontalAlignment = HorizontalAlignment.Center, Text = "Login"
+            };
 
-            PasswordBox passwordTextBox1 = new PasswordBox();
-            passwordTextBox1.Margin = new Thickness(90, 220, 90, 220);
-            passwordTextBox1.MaxLength = 20;
-            passwordTextBox1.PasswordChar = '*';
+            var loginTextBox = new TextBox {Margin = new Thickness(90, 140, 90, 300), MaxLength = 20};
 
-            TextBlock passwordTextBlock2 = new TextBlock();
-            passwordTextBlock2.Margin = new Thickness(100, 260, 100, 0);
-            passwordTextBlock2.FontSize = 16;
-            passwordTextBlock2.HorizontalAlignment = HorizontalAlignment.Center;
-            passwordTextBlock2.Text = "Repeat Password";
+            var passwordTextBlock1 = new TextBlock
+            {
+                Margin = new Thickness(100, 180, 100, 0), FontSize = 16,
+                HorizontalAlignment = HorizontalAlignment.Center, Text = "Password"
+            };
 
-            PasswordBox passwordTextBox2 = new PasswordBox();
-            passwordTextBox2.Margin = new Thickness(90, 300, 90, 140);
-            passwordTextBox2.MaxLength = 20;
-            passwordTextBox2.PasswordChar = '*';
+            var passwordTextBox1 = new PasswordBox
+            {
+                Margin = new Thickness(90, 220, 90, 220), MaxLength = 20, PasswordChar = '*'
+            };
 
-            Button signUpButton = new Button();
-            signUpButton.Margin = new Thickness(125, 350, 125, 80);
-            signUpButton.Content = "Sign Up";
+            var passwordTextBlock2 = new TextBlock
+            {
+                Margin = new Thickness(100, 260, 100, 0), FontSize = 16,
+                HorizontalAlignment = HorizontalAlignment.Center, Text = "Repeat Password"
+            };
+
+            var passwordTextBox2 = new PasswordBox
+            {
+                Margin = new Thickness(90, 300, 90, 140), MaxLength = 20, PasswordChar = '*'
+            };
+
+            var signUpButton = new Button
+            {
+                Margin = new Thickness(125, 350, 125, 80), Content = "Sign Up", IsEnabled = false
+            };
             signUpButton.Click += (e, v) =>
                 signUpButton.Tag = loginTextBox.Text + " " + passwordTextBox1.Password + " " +
                                    passwordTextBox2.Password;
+
             signUpButton.Click += signUpButton2_click;
 
-            layoutGrid.Children.Add(titleTextBlock);
+            loginTextBox.TextChanged += (v, e) =>
+            {
+                signUpButton.IsEnabled = passwordTextBox1.Password != "" && loginTextBox.Text != "" && passwordTextBox2.Password != "";
+            };
+            passwordTextBox1.PasswordChanged += (v, e) =>
+            {
+                signUpButton.IsEnabled = passwordTextBox1.Password != "" && loginTextBox.Text != "" && passwordTextBox2.Password != "";
+            };
+            passwordTextBox2.PasswordChanged += (v, e) =>
+            {
+                signUpButton.IsEnabled = passwordTextBox1.Password != "" && loginTextBox.Text != "" && passwordTextBox2.Password != "";
+            };
+
+            layoutGrid.Children.Add(image);
             layoutGrid.Children.Add(loginTextBlock);
             layoutGrid.Children.Add(loginTextBox);
             layoutGrid.Children.Add(passwordTextBlock1);
@@ -168,34 +213,21 @@ namespace Wiki
         {
             var login = ((Control)sender).Tag.ToString().Split(' ').First();
             var password = ((Control)sender).Tag.ToString().Split(' ')[1];
-            var password_repeat = ((Control) sender).Tag.ToString().Split(' ').Last();
+            var passwordRepeat = ((Control) sender).Tag.ToString().Split(' ').Last();
 
-            if (User.RegisterUser(login, password, password_repeat))
+
+            if (User.RegisterUser(login, password, passwordRepeat))
             {
                 layoutGrid.Children.Clear();
                 DrawSignInWindow();
 
-                TextBlock sRTextBlock = new TextBlock();
-                sRTextBlock.Margin = new Thickness(10);
-                sRTextBlock.FontSize = 16;
-                sRTextBlock.Foreground = Brushes.Green;
-                sRTextBlock.HorizontalAlignment = HorizontalAlignment.Center;
-                sRTextBlock.VerticalAlignment = VerticalAlignment.Bottom;
-                sRTextBlock.Text = "Registration successful";
-
-                layoutGrid.Children.Add(sRTextBlock);
+                SRTextBlock.Foreground = Brushes.Green;
+                SRTextBlock.Text = "Registration successful";
             }
             else
             {
-                TextBlock sRTextBlock = new TextBlock();
-                sRTextBlock.Margin = new Thickness(10);
-                sRTextBlock.FontSize = 16;
-                sRTextBlock.Foreground = Brushes.Red;
-                sRTextBlock.HorizontalAlignment = HorizontalAlignment.Center;
-                sRTextBlock.VerticalAlignment = VerticalAlignment.Bottom;
-                sRTextBlock.Text = "Passwords didn't match or" + Environment.NewLine + "      Login already exists";
-
-                layoutGrid.Children.Add(sRTextBlock);
+                SRTextBlock.Foreground = Brushes.Red;
+                SRTextBlock.Text = "Passwords didn't match or" + Environment.NewLine + "      Login already exists";
             }
         }
     }

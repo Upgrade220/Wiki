@@ -1,19 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using Wiki.ArticleLogic;
+using static System.String;
 
 namespace Wiki
 {
@@ -25,96 +19,98 @@ namespace Wiki
         public MainWindow(bool IsAdmin)
         {
             var articles = new List<Article>();
-            var changes = new List<Article>();
+            var changes = new List<Change>();
 
-            for (int i = 1; i < Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "Article?.txt").Length; i++)
-                articles.Add(Article.ReadArticle("Article" + i + ".txt"));
-            for (int i = 1; i < Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "Changes?.txt").Length; i++)
-                changes.Add(Article.ReadArticle("Changes" + i + ".txt"));
+            var dataFile = new StreamReader(AppDomain.CurrentDomain.BaseDirectory + "Data.txt");
+            var data = dataFile.ReadToEnd().Split('c');
+            dataFile.Close();
+            var articleIndex = data[0].Split(',');
+            var changesIndex = data[1].Split(',').Where(x => !IsNullOrWhiteSpace(x));
+
+            foreach (var index in articleIndex)
+                articles.Add(Article.ReadArticle("Article" + index + ".txt", int.Parse(index))); 
+            articles.Sort((a1, a2) => Compare(a1.Header, a2.Header, StringComparison.Ordinal));
+
+            foreach (var index in changesIndex)
+                changes.Add(Change.ReadChange("Change" + index + ".txt", int.Parse(index)));
+            changes.Sort((a1, a2) => Compare(a1.Header, a2.Header, StringComparison.Ordinal));
 
             InitializeComponent();
 
             layoutGrid.Background = Brushes.White;
             layoutGrid.ShowGridLines = true;
 
-            var leftCol = new ColumnDefinition();
-            leftCol.Width = new GridLength(300, GridUnitType.Pixel);
-            var rightCol = new ColumnDefinition();
-            rightCol.Width = new GridLength(1,GridUnitType.Star);
+            var leftCol = new ColumnDefinition {Width = new GridLength(300, GridUnitType.Pixel)};
+            var rightCol = new ColumnDefinition {Width = new GridLength(1, GridUnitType.Star)};
 
             layoutGrid.ColumnDefinitions.Add(leftCol);
             layoutGrid.ColumnDefinitions.Add(rightCol);
+            
+            #region Левая часть
 
-            //Левая часть
-
-            var leftScroll = new ScrollViewer();
-            leftScroll.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
-            leftScroll.HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled;
-            leftScroll.Height = IsAdmin ? 960 : 1020;
+            var leftScroll = new ScrollViewer
+            {
+                VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+                HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
+                Height = IsAdmin ? 960 : 1020
+            };
             Grid.SetColumn(leftScroll, 0);
             Grid.SetRow(leftScroll, 0);
 
-            var leftStackPanel = new StackPanel();
-            leftStackPanel.HorizontalAlignment = HorizontalAlignment.Left;
-            leftStackPanel.VerticalAlignment = VerticalAlignment.Top;
+            var leftStackPanel = new StackPanel
+            {
+                HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top
+            };
             Grid.SetColumn(leftStackPanel, 0);
             Grid.SetRow(leftStackPanel, 0);
 
-            //var searchTextBox = new TextBox();
-            //searchTextBox.Margin = new Thickness(0);
-            //searchTextBox.Width = 300;
-            //searchTextBox.FontSize = 18;
-            //searchTextBox.HorizontalAlignment = HorizontalAlignment.Stretch;
-            //searchTextBox.Text = "Search";
-            //searchTextBox.Foreground = Brushes.Gray;
-            //searchTextBox.GotKeyboardFocus += new KeyboardFocusChangedEventHandler(tb_GotKeyboardFocus);
-            //searchTextBox.LostKeyboardFocus += new KeyboardFocusChangedEventHandler(tb_LostKeyboardFocus);
-
-            var listElement = new DataTemplate();
-            listElement.DataType = typeof(Article);
-            var spFactory = new FrameworkElementFactory(typeof(StackPanel));
-            spFactory.Name = "myComboFactory";
+            var listElement = new DataTemplate {DataType = typeof(Article)};
+            var spFactory = new FrameworkElementFactory(typeof(StackPanel)) {Name = "myComboFactory"};
             spFactory.SetValue(StackPanel.OrientationProperty, Orientation.Horizontal);
-            var Title = new FrameworkElementFactory(typeof(TextBlock));
-            Title.SetBinding(TextBlock.TextProperty, new Binding(""));
-            spFactory.AppendChild(Title);
+            var title = new FrameworkElementFactory(typeof(TextBlock));
+            title.SetBinding(TextBlock.TextProperty, new Binding(""));
+            title.SetValue(TextBlock.FontSizeProperty, 20.0);
+            title.SetValue(TextBlock.TextWrappingProperty, TextWrapping.Wrap);
+            title.SetValue(TextBlock.WidthProperty, 280.0);
+            spFactory.AppendChild(title);
             listElement.VisualTree = spFactory;
-            
-            var listBox = new ListBox();
-            listBox.HorizontalAlignment = HorizontalAlignment.Stretch;
-            listBox.Margin = new Thickness(0);
-            listBox.Width = 300;
-            listBox.ItemsSource = articles;
-            listBox.ItemTemplate = listElement;
-            listBox.SelectionMode = SelectionMode.Single;
 
-            var articlesButton = new Button();
-            articlesButton.VerticalAlignment = VerticalAlignment.Bottom;
-            articlesButton.HorizontalAlignment = HorizontalAlignment.Center;
-            articlesButton.Margin = new Thickness(0);
-            articlesButton.Height = 30;
-            articlesButton.Width = 300;
-            articlesButton.Content = "Статьи";
+            var listBox = new ListBox
+            {
+                HorizontalAlignment = HorizontalAlignment.Stretch,
+                Margin = new Thickness(0), Width = 300,
+                ItemsSource = articles, ItemTemplate = listElement,
+                SelectionMode = SelectionMode.Single
+            };
+
+            var articlesButton = new Button
+            {
+                VerticalAlignment = VerticalAlignment.Bottom,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Margin = new Thickness(0),
+                Height = 30, Width = 300,
+                Content = "Конспекты", FontSize = 15
+            };
             articlesButton.Click += (v, e) =>
             {
                 listBox.ItemsSource = articles;
                 InvalidateVisual();
             };
 
-            var changesButton = new Button();
-            changesButton.VerticalAlignment = VerticalAlignment.Bottom;
-            changesButton.HorizontalAlignment = HorizontalAlignment.Center;
-            changesButton.Margin = new Thickness(0);
-            changesButton.Height = 30;
-            changesButton.Width = 300;
-            changesButton.Content = "Правки";
+            var changesButton = new Button
+            {
+                VerticalAlignment = VerticalAlignment.Bottom,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Margin = new Thickness(0),
+                Height = 30, Width = 300,
+                Content = "Правки", FontSize = 15
+            };
             changesButton.Click += (v, e) =>
             {
                 listBox.ItemsSource = changes;
                 InvalidateVisual();
             };
 
-            //leftStackPanel.Children.Add(searchTextBox);
             leftScroll.Content = listBox;
             leftStackPanel.Children.Add(leftScroll);
             if (IsAdmin)
@@ -123,67 +119,194 @@ namespace Wiki
                 leftStackPanel.Children.Add(changesButton);
             }
 
-            // Правая часть
+            #endregion
 
-            var rightStackPanel = new StackPanel();
-            rightStackPanel.HorizontalAlignment = HorizontalAlignment.Left;
-            rightStackPanel.VerticalAlignment = VerticalAlignment.Top;
+            #region Правая часть
+
+            var rightStackPanel = new StackPanel
+            {
+                HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top
+            };
             Grid.SetColumn(rightStackPanel, 1);
             Grid.SetRow(rightStackPanel, 0);
 
-            var titleTextBlock = new TextBlock();
-            titleTextBlock.FontSize = 25;
-            titleTextBlock.Margin = new Thickness(10,0,10,0);
-            titleTextBlock.FontWeight = FontWeights.Bold;
-            titleTextBlock.HorizontalAlignment = HorizontalAlignment.Stretch;
+            var titleTextBlock = new TextBlock
+            {
+                FontSize = 30, Margin = new Thickness(0),
+                FontWeight = FontWeights.Bold,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Text = "Выберите конспект", TextWrapping = TextWrapping.Wrap
+            };
 
-            var rightScroll = new ScrollViewer();
-            rightScroll.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
-            rightScroll.HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled;
-            rightScroll.Height = 945;
+            var rightScroll = new ScrollViewer
+            {
+                VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+                HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
+                Height = 945, Margin = new Thickness(0)
+            };
             Grid.SetColumn(rightScroll, 1);
             Grid.SetRow(rightScroll, 0);
 
-            var contentTextBlock = new TextBlock();
-            contentTextBlock.Margin = new Thickness(10, 10, 10, 0);
-            contentTextBlock.FontSize = 15;
-            contentTextBlock.FontWeight = FontWeights.Normal;
-            contentTextBlock.HorizontalAlignment = HorizontalAlignment.Center;
-            titleTextBlock.Text = "Выберите конспект";
-
-            listBox.SelectionChanged += (v, e) =>
+            var contentTextBlock = new TextBlock
             {
-                if (listBox.SelectedIndex != -1)
-                {
-                    titleTextBlock.Text = articles.ElementAt(listBox.SelectedIndex).Header;
-                    contentTextBlock.Text = articles.ElementAt(listBox.SelectedIndex).Content;
-                }
+                Margin = new Thickness(10, 10, 10, 0),
+                FontSize = 15, FontWeight = FontWeights.Normal,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                TextWrapping = TextWrapping.Wrap
             };
 
-            var changingButton = new Button();
-            changingButton.VerticalAlignment = VerticalAlignment.Bottom;
-            changingButton.HorizontalAlignment = HorizontalAlignment.Center;
-            changingButton.Margin = new Thickness(0);
-            changingButton.Height = 40;
-            changingButton.Width = 1620;
-            changingButton.Content = "Предложить правку";
+            var contentTextBox = new TextBox
+            {
+                Margin = new Thickness(10, 10, 10, 0),
+                FontSize = 15, Width = 1620,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                HorizontalContentAlignment = HorizontalAlignment.Center,
+                TextWrapping = TextWrapping.Wrap, AcceptsReturn = true
+            };
 
-            var acceptChangesButton = new Button();
-            acceptChangesButton.VerticalAlignment = VerticalAlignment.Bottom;
-            acceptChangesButton.HorizontalAlignment = HorizontalAlignment.Center;
-            acceptChangesButton.Margin = new Thickness(0);
-            acceptChangesButton.Height = 40;
-            acceptChangesButton.Width = 1620;
-            acceptChangesButton.Content = "Принять правку";
+            var changingButton = new Button
+            {
+                VerticalAlignment = VerticalAlignment.Bottom,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Margin = new Thickness(0),
+                Height = 40, Width = 1620, Content = "Предложить правку",
+                FontSize = 18, IsEnabled = false
+            };
+
+            var sendChangesButton = new Button
+            {
+                VerticalAlignment = VerticalAlignment.Bottom,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Margin = new Thickness(0),
+                Height = 40, Width = 1620, Content = "Отправить правку",
+                FontSize = 18, IsEnabled = false
+            };
+
+
+            var acceptChangesButton = new Button
+            {
+                VerticalAlignment = VerticalAlignment.Bottom,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Margin = new Thickness(0),
+                Height = 40, Width = 1620, Content = "Принять правку",
+                IsEnabled = false, FontSize = 18
+            };
 
             rightStackPanel.Children.Add(titleTextBlock);
             rightScroll.Content = contentTextBlock;
             rightStackPanel.Children.Add(rightScroll);
             rightStackPanel.Children.Add(listBox.ItemsSource == articles ? changingButton : acceptChangesButton);
 
+            #endregion
+
+            listBox.SelectionChanged += (v, e) =>
+            {
+                rightScroll.Content = contentTextBlock;
+                rightStackPanel.Children.Clear();
+                rightStackPanel.Children.Add(titleTextBlock);
+                rightStackPanel.Children.Add(rightScroll);
+                changingButton.IsEnabled = false;
+                sendChangesButton.IsEnabled = false;
+                acceptChangesButton.IsEnabled = false;
+                if (listBox.SelectedIndex != -1)
+                {
+                    if (listBox.ItemsSource == articles)
+                    {
+                        titleTextBlock.Text = articles.ElementAt(listBox.SelectedIndex).Header;
+                        contentTextBlock.Text = articles.ElementAt(listBox.SelectedIndex).Content;
+                        changingButton.IsEnabled = true;
+                        rightStackPanel.Children.Add(changingButton);
+                    }
+                    else
+                    {
+                        titleTextBlock.Text = changes.ElementAt(listBox.SelectedIndex).Header;
+                        contentTextBlock.Text = changes.ElementAt(listBox.SelectedIndex).Content;
+                        acceptChangesButton.IsEnabled = true;
+                        rightStackPanel.Children.Add(acceptChangesButton);
+                    }
+                }
+                InvalidateVisual();
+            };
+
+            changingButton.Click += (v, e) =>
+            {
+                contentTextBox.Text = articles.ElementAt(listBox.SelectedIndex).Content;
+                rightScroll.Content = contentTextBox;
+                rightStackPanel.Children.Clear();
+                rightStackPanel.Children.Add(titleTextBlock);
+                rightStackPanel.Children.Add(rightScroll);
+                rightStackPanel.Children.Add(sendChangesButton);
+                InvalidateVisual();
+            };
+
+            contentTextBox.GotKeyboardFocus += (v, e) =>
+            {
+                sendChangesButton.IsEnabled = true;
+                InvalidateVisual();
+            };
+
+            sendChangesButton.Click += (v, e) =>
+            {
+                var warning = MessageBox.Show("Вы точно хотите предложить правку?", "Подтверждение",
+                    MessageBoxButton.YesNo, MessageBoxImage.Question);
+                switch (warning)
+                {
+                    case MessageBoxResult.Yes:
+                        rightScroll.Content = contentTextBlock;
+                        rightStackPanel.Children.Clear();
+                        rightStackPanel.Children.Add(titleTextBlock);
+                        rightStackPanel.Children.Add(rightScroll);
+                        rightStackPanel.Children.Add(changingButton);
+                        InvalidateVisual();
+                        var article = listBox.SelectedItem as Article;
+                        Change.CreateChange(
+                            titleTextBlock.Text + "'" + article.Index + "'" +
+                            contentTextBox.Text,
+                            changes.Count + 1);
+                        changes.Add(new Change(article.Index,changes.Count + 1,titleTextBlock.Text, contentTextBox.Text));
+                        changes.Sort((a1, a2) => Compare(a1.Header, a2.Header, StringComparison.Ordinal));
+                        break;
+                    case MessageBoxResult.No:
+                        break;
+                }
+            };
+
+            acceptChangesButton.Click += (v, e) =>
+            {
+                var warning = MessageBox.Show("Вы точно хотите принять правку?", "Подтверждение",
+                    MessageBoxButton.YesNo, MessageBoxImage.Question);
+                switch (warning)
+                {
+                    case MessageBoxResult.Yes:
+                        var change = listBox.SelectedItem as Change;
+                        Change.AcceptChange(change.Index);
+                        var changedArtcle = articles.Find(x => x.Index == (change.Index - 1));
+                        changedArtcle.Header = titleTextBlock.Text;
+                        changedArtcle.Content = contentTextBlock.Text;
+                        changes.RemoveAt(changes.FindIndex(a => a.Header.StartsWith(titleTextBlock.Text)));
+                        titleTextBlock.Text = "Выберите правку";
+                        contentTextBlock.Text = "";
+                        contentTextBox.Text = "";
+                        break;
+                    case MessageBoxResult.No:
+                        break;
+                }
+                rightStackPanel.Children.Clear();
+                titleTextBlock.Text = "Выберите правку";
+                contentTextBlock.Text = "";
+                contentTextBox.Text = "";
+                rightStackPanel.Children.Add(titleTextBlock);
+                rightStackPanel.Children.Add(rightScroll);
+                rightStackPanel.Children.Add(acceptChangesButton);
+                InvalidateVisual();
+            };
+
             articlesButton.Click += (v, e) =>
             {
                 rightStackPanel.Children.Clear();
+                titleTextBlock.Text = "Выберите конспект";
+                contentTextBlock.Text = "";
+                contentTextBox.Text = "";
                 rightStackPanel.Children.Add(titleTextBlock);
                 rightStackPanel.Children.Add(rightScroll);
                 rightStackPanel.Children.Add(changingButton);
@@ -192,6 +315,9 @@ namespace Wiki
             changesButton.Click += (v, e) =>
             {
                 rightStackPanel.Children.Clear();
+                titleTextBlock.Text = "Выберите правку";
+                contentTextBlock.Text = "";
+                contentTextBox.Text = "";
                 rightStackPanel.Children.Add(titleTextBlock);
                 rightStackPanel.Children.Add(rightScroll);
                 rightStackPanel.Children.Add(acceptChangesButton);
@@ -200,31 +326,6 @@ namespace Wiki
 
             layoutGrid.Children.Add(leftStackPanel);
             layoutGrid.Children.Add(rightStackPanel);
-        }
-
-        private void tb_GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
-        {
-            if (sender is TextBox)
-            {
-                //If nothing has been entered yet.
-                if (((TextBox) sender).Foreground == Brushes.Gray)
-                {
-                    ((TextBox) sender).Text = "";
-                    ((TextBox) sender).Foreground = Brushes.Black;
-                }
-            }
-        }
-
-        private void tb_LostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
-        {
-            if (sender is TextBox)
-            {
-                if (((TextBox)sender).Text.Trim().Equals(""))
-                {
-                    ((TextBox)sender).Foreground = Brushes.Gray;
-                    ((TextBox)sender).Text = "Search";
-                }
-            }
         }
     }
 }

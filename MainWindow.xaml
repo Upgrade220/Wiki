@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         WindowStyle="SingleBorderWindow"
         WindowState="Maximized"
-        Title="MainWindow" Height="1040" Width="1920">
+        Title="LectureNotes" Height="1040" Width="1920" Icon="Icon.png">
     <Grid x:Name="layoutGrid">
     </Grid>
 </Window>

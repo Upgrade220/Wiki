@@ -6,7 +6,7 @@
         ResizeMode="NoResize"
         xmlns:local="clr-namespace:Wiki"
         mc:Ignorable="d"
-        Title="LoginWindow" Height="500" Width="350">
+        Title="LoginWindow" Height="500" Width="350" Icon="Icon.png">
     <Grid x:Name="layoutGrid">
     </Grid>
 </Window>

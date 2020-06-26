@@ -27,8 +27,15 @@ namespace Wiki.LoginLogic
 
             for (var i = 1; i < firstEmpty; i++)
                 if (login == exWrkSht.Cells[i, 1].Value.ToString() && hash == exWrkSht.Cells[i, 2].Value.ToString())
+                {
+                    xlWb.Close();
+                    exApp.Quit();
                     return true;
+                }
+            xlWb.Close();
+            exApp.Quit();
             return false;
+
         }
 
         public static bool RegisterUser(string login, string password, string secondPassword)
@@ -67,7 +74,14 @@ namespace Wiki.LoginLogic
             var exWrkSht = xlWb.Sheets[1];
             var firstEmpty = exWrkSht.Cells[exWrkSht.Rows.Count, "A"].End[Excel.XlDirection.xlUp].Row + 1;
             for (var i = 1; i < firstEmpty; i++)
-                if ("1" == exWrkSht.Cells[i, 3].Value.ToString() && login == exWrkSht.Cells[i, 1].Value.ToString()) return true;
+                if ("1" == exWrkSht.Cells[i, 3].Value.ToString() && login == exWrkSht.Cells[i, 1].Value.ToString())
+                {
+                    xlWb.Close();
+                    exApp.Quit();
+                    return true;
+                }
+            xlWb.Close();
+            exApp.Quit();
             return false;
         }
     }
