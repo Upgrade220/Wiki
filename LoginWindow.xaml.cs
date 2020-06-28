@@ -34,7 +34,7 @@ namespace Wiki
         {
             var bitmap = new BitmapImage();
             bitmap.BeginInit();
-            bitmap.UriSource = new Uri(@"C:\Users\User\source\repos\Wiki\Icon.png");
+            bitmap.UriSource = new Uri(@"C:\Users\slava\Desktop\wiki\Wiki\Icon.png");
             bitmap.EndInit();
 
             var image = new Image
@@ -133,7 +133,7 @@ namespace Wiki
 
             var bitmap = new BitmapImage();
             bitmap.BeginInit();
-            bitmap.UriSource = new Uri(@"C:\Users\User\source\repos\Wiki\Icon.png");
+            bitmap.UriSource = new Uri(@"C:\Users\slava\Desktop\wiki\Wiki\Icon.png");
             bitmap.EndInit();
 
             var image = new Image

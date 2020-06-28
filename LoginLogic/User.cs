@@ -6,6 +6,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using Excel = Microsoft.Office.Interop.Excel;
+using Npgsql;
 
 namespace Wiki.LoginLogic
 {
@@ -13,11 +14,11 @@ namespace Wiki.LoginLogic
     {
         public static bool LoginUser(string login, string password)
         {
-            var exApp = new Excel.Application();
-            var xlWb = exApp.Workbooks.Open(AppDomain.CurrentDomain.BaseDirectory + "..\\..\\Users.xlsx");
-            var exWrkSht = xlWb.Sheets[1];
-            var firstEmpty = exWrkSht.Cells[exWrkSht.Rows.Count, "A"].End[Excel.XlDirection.xlUp].Row + 1;
-
+            var conn = new NpgsqlConnection("Server=localhost;Port=5432;User id=postgres;Password=05082000s;Database=lecturedb;");
+            conn.Open();
+            var command = new NpgsqlCommand("select * from users", conn);
+            NpgsqlDataReader reader = command.ExecuteReader();
+            
             var bytes = Encoding.Unicode.GetBytes(password);
             var CSP = new MD5CryptoServiceProvider();
             var byteHash = CSP.ComputeHash(bytes);
@@ -25,30 +26,36 @@ namespace Wiki.LoginLogic
             foreach (byte b in byteHash)
                 hash += string.Format("{0:x2}", b);
 
-            for (var i = 1; i < firstEmpty; i++)
-                if (login == exWrkSht.Cells[i, 1].Value.ToString() && hash == exWrkSht.Cells[i, 2].Value.ToString())
+            while (reader.Read())
+            {
+                var log = reader.GetValue(0);
+                var pass = reader.GetValue(1);
+                if(login == log.ToString() && hash == pass.ToString())
                 {
-                    xlWb.Close();
-                    exApp.Quit();
+                    conn.Close();
                     return true;
                 }
-            xlWb.Close();
-            exApp.Quit();
+            } 
             return false;
-
         }
 
         public static bool RegisterUser(string login, string password, string secondPassword)
         {
             if (password != secondPassword) return false;
 
-            var exApp = new Excel.Application();
-            var xlWb = exApp.Workbooks.Open(AppDomain.CurrentDomain.BaseDirectory + "..\\..\\Users.xlsx");
-            var exWrkSht = xlWb.Sheets[1];
-            var firstEmpty = exWrkSht.Cells[exWrkSht.Rows.Count, "A"].End[Excel.XlDirection.xlUp].Row + 1;
+            var conn = new NpgsqlConnection("Server=localhost;Port=5432;User id=postgres;Password=05082000s;Database=lecturedb;");
+            conn.Open();
+            var command = new NpgsqlCommand("select * from users", conn);
+            NpgsqlDataReader reader = command.ExecuteReader();
 
-            for (var i = 1; i < firstEmpty; i++)
-                if (login == exWrkSht.Cells[i, 1].Value.ToString()) return false;
+            while(reader.Read())
+            {
+                var log = reader.GetValue(0);
+                if (login == log.ToString()) return false;
+            }
+
+            conn.Close();
+            conn.Open();
 
             var bytes = Encoding.Unicode.GetBytes(password);
             var CSP = new MD5CryptoServiceProvider();
@@ -57,13 +64,10 @@ namespace Wiki.LoginLogic
             foreach (byte b in byteHash)
                 hash += string.Format("{0:x2}", b);
 
-            exWrkSht.Cells[firstEmpty, 1] = login;
-            exWrkSht.Cells[firstEmpty, 2] = hash;
-            exWrkSht.Cells[firstEmpty, 3] = "0";
-            xlWb.Save();
-            xlWb.Close();
-            exApp.Quit();
 
+            NpgsqlCommand commandToWrite = new NpgsqlCommand("INSERT INTO users (login, password, is_admin) VALUES ('" + login + "', '" + hash + "', '0')" , conn);
+            var c = commandToWrite.ExecuteReader();
+            conn.Close();
             return true;
         }
 
