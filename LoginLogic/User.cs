@@ -73,19 +73,22 @@ namespace Wiki.LoginLogic
 
         public static bool IsAdmin(string login)
         {
-            var exApp = new Excel.Application();
-            var xlWb = exApp.Workbooks.Open(AppDomain.CurrentDomain.BaseDirectory + "..\\..\\Users.xlsx");
-            var exWrkSht = xlWb.Sheets[1];
-            var firstEmpty = exWrkSht.Cells[exWrkSht.Rows.Count, "A"].End[Excel.XlDirection.xlUp].Row + 1;
-            for (var i = 1; i < firstEmpty; i++)
-                if ("1" == exWrkSht.Cells[i, 3].Value.ToString() && login == exWrkSht.Cells[i, 1].Value.ToString())
+            var conn = new NpgsqlConnection("Server=localhost;Port=5432;User id=postgres;Password=05082000s;Database=lecturedb;");
+            conn.Open();
+            var command = new NpgsqlCommand("select * from users", conn);
+            NpgsqlDataReader reader = command.ExecuteReader();
+
+            while (reader.Read())
+            {
+                var log = reader.GetValue(0);
+                var isAdmin = reader.GetValue(2);
+                if (isAdmin.ToString() == "1" && log.ToString() == login)
                 {
-                    xlWb.Close();
-                    exApp.Quit();
+                    conn.Close();
                     return true;
                 }
-            xlWb.Close();
-            exApp.Quit();
+            }
+            conn.Close();
             return false;
         }
     }
